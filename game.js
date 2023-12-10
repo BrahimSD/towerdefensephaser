@@ -11,8 +11,6 @@ const config = {
             this.load.image('playButton', 'assets/playButton.svg');
             this.load.image('heart', 'assets/heart.svg');
             this.load.image('noEntry', 'assets/noEntry.svg');
-
-
         },
         create: function() {
             const model = new GameModel();

@@ -3,7 +3,8 @@ class GameController {
         this.tanks = view.tanks;
         this.model = model;
         this.view = view;
-        //this.setupSelectionMenu();
+        this.setupSelectionMenu();
+        this.view.game.textures.generate('chickTexture', { data: this.model.chick, pixelWidth: 2.5, pixelHeight: 2.5, palette: this.model.chickColors });
 
     }
 
@@ -27,63 +28,16 @@ class GameController {
         this.view.game.events.on('playGame', this.playGame, this);
         this.view.game.events.on('setSpeed', this.setGameSpeed, this);
     }
-    start() {
-        this.view.createTanks(3);
-        this.isGamePlaying = true;
-    }
+
     playGame() {
-        if (!this.isGamePlaying) {
-            // Si le jeu n'est pas en cours, lancez les tanks
-            this.start();
 
-        } else {
-            // Si le jeu est déjà en cours, activez/désactivez la pause
-            this.togglePause();
-        }
-    }
-    togglePause() {
-        this.tanks.forEach(tank => {
-            if (tank.tween && this.gamePaused) {
-                tank.tween.resume(); // Reprendre le mouvement
-            } else if (tank.tween && !this.gamePaused) {
-                tank.tween.pause(); // Mettre en pause le mouvement
-            }
-        });
-        this.gamePaused = !this.gamePaused;
+        this.view.createTanks(3);
 
     }
 
-
-
-    setGameSpeed(speedLabel) {
-        // Mapper les labels de vitesse en facteurs de durée
-        const speedMapping = { 'x1': 1, 'x2': 0.5, 'x3': 0.25 };
-        const speedFactor = speedMapping[speedLabel];
-
-        // Vérifier si le facteur de vitesse est valide
-        if (!speedFactor) {
-            console.error("Vitesse invalide");
-            return;
-        }
-
-        // Mettre à jour la vitesse de chaque tank
-        if (Array.isArray(this.tanks) && this.tanks.length > 0) {
-            this.tanks.forEach(tank => {
-                if (tank.tween) {
-                    // Arrêter le tween en cours
-                    tank.tween.stop();
-
-                    // Calculer la nouvelle durée
-                    const newDuration = tank.initialDuration * speedFactor;
-
-                    // Redémarrer le tween avec la nouvelle durée
-                    tank.move(tank.currentPathIndex, newDuration);
-                }
-            });
-        }
+    setGameSpeed(speed) {
+        // Logique pour régler la vitesse du jeu (x1, x2, x3)
     }
-
-
     setupInfoBar() {
         this.view.createInfoBar();
 
