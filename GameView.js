@@ -1,10 +1,11 @@
 // GameView.js
-class GameView {
-    constructor(game, path) {
 
+class GameView {
+    constructor(game, path, model) {
+        this.model = model;
         this.path = path;
         this.game = game;
-
+        this.tanks = [];
 
     }
 
@@ -92,7 +93,6 @@ class GameView {
     }
 
 
-
     fadeBack(tile, color, alpha, duration) {
         let elapsedTime = 0;
         const intervalTime = 30; // Durée d'un pas de l'animation, en ms
@@ -112,48 +112,14 @@ class GameView {
         return interval;
     }
     createTanks(numberOfTanks) {
-        this.tanks = []; // Tableau pour stocker les tanks
 
         for (let i = 0; i < numberOfTanks; i++) {
-            // Création du tank avec un délai
             setTimeout(() => {
-                let tank = this.game.add.sprite(-20, ((this.path[0][1]) * 40) + 20, 'chickTexture');
+                let tank = new Tank(this.game, this.model, -20, ((this.path[0][1]) * 40) + 20);
                 this.tanks.push(tank);
-                this.moveTank(tank, 0); // Commencez le mouvement du tank
-            }, i * 300);
+                tank.move(0);
+            }, i * 500);
         }
     }
-
-
-    moveTank(tank, index) {
-        if (index < this.path.length) {
-            // Mouvement normal le long du chemin
-            this.game.tweens.add({
-                targets: tank,
-                x: (this.path[index][0] * 40) + 20,
-                y: (this.path[index][1] * 40) + 20,
-                ease: 'Linear',
-                duration: 200,
-                onComplete: () => {
-                    this.moveTank(tank, index + 1);
-                }
-            });
-        } else if (index == this.path.length) {
-            // Effet de "rentrée" à la fin du chemin
-            this.game.tweens.add({
-                targets: tank,
-                x: (this.path[index - 1][0] * 40) + 20,
-                y: (this.path[index - 1][1] * 40) + 40,
-                scaleY: 0, // Réduire la largeur du tank à zéro
-                ease: 'Linear',
-                duration: 200,
-                onComplete: () => {
-                    tank.destroy(); // Détruire le tank après l'animation
-                }
-            });
-        }
-    }
-
-
 
 }

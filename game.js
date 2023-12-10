@@ -16,7 +16,7 @@ const config = {
         },
         create: function() {
             const model = new GameModel();
-            const view = new GameView(this, model.mapPath);
+            const view = new GameView(this, model.mapPath, model);
             const controller = new GameController(model, view);
 
             controller.setupControlBar();

@@ -1,6 +1,7 @@
 // GameModel.js
 class GameModel {
     constructor() {
+        this.isGamePlaying = false;
         this.lives = 13;
         this.waveNumber = 0;
         this.mapPath = [
