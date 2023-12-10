@@ -1,44 +1,46 @@
 // GameView.js
-class GameView {
-    constructor(game, path) {
 
+class GameView {
+    constructor(game, path, model) {
+        this.model = model;
         this.path = path;
         this.game = game;
-
+        this.tanks = [];
+        this.numberOfTanks = 3; // Commencer avec 3 tanks
 
     }
 
-    createSelectionMenu() {
-        // Définissez la largeur et la hauteur du menu de sélection en fonction du nombre de carrés et de leur taille
-        const menuWidth = 70 * 4; // 4 carrés de large
-        const menuHeight = 80; // 1 carré de hauteur
-        const menuXOffset = 40; // Espace entre les carrés
+    // createSelectionMenu() {
+    //     // Définissez la largeur et la hauteur du menu de sélection en fonction du nombre de carrés et de leur taille
+    //     const menuWidth = 70 * 4; // 4 carrés de large
+    //     const menuHeight = 80; // 1 carré de hauteur
+    //     const menuXOffset = 40; // Espace entre les carrés
 
-        // Créez un conteneur pour le menu de sélection qui est initialement masqué
-        this.selectionMenu = this.game.add.container(0, 0).setVisible(false).setDepth(1);
+    //     // Créez un conteneur pour le menu de sélection qui est initialement masqué
+    //     this.selectionMenu = this.game.add.container(0, 0).setVisible(false).setDepth(1);
 
-        // Créez un rectangle pour le fond du menu de sélection
-        const background = this.game.add.rectangle(0, 0, menuWidth + menuXOffset, menuHeight, 0x282828);
-        background.setOrigin(0, 0); // Assurez-vous que l'origine est en haut à gauche
-        this.selectionMenu.add(background);
+    //     // Créez un rectangle pour le fond du menu de sélection
+    //     const background = this.game.add.rectangle(0, 0, menuWidth + menuXOffset, menuHeight, 0x282828);
+    //     background.setOrigin(0, 0); // Assurez-vous que l'origine est en haut à gauche
+    //     this.selectionMenu.add(background);
 
-        // Créez les carrés de couleurs à l'intérieur du menu de sélection
-        const colors = [0x00ff00, 0x0000ff, 0xffff00, 0xff0000]; // Vert, Bleu, Jaune, Rouge
-        colors.forEach((color, index) => {
-            const colorSquare = this.game.add.rectangle(menuXOffset + index * (40 + menuXOffset), menuHeight / 2, 40, 40, color).setInteractive();
-            colorSquare.setOrigin(0.5, 0.5); // Centre l'origine du carré
-            colorSquare.on('pointerdown', () => {
-                this.game.events.emit('tankSelected', color); // Émettre un événement avec la couleur sélectionnée
-                this.selectionMenu.setVisible(false); // Masquer le menu après la sélection
-            });
-            this.selectionMenu.add(colorSquare);
-        });
-    }
+    //     // Créez les carrés de couleurs à l'intérieur du menu de sélection
+    //     const colors = [0x00ff00, 0x0000ff, 0xffff00, 0xff0000]; // Vert, Bleu, Jaune, Rouge
+    //     colors.forEach((color, index) => {
+    //         const colorSquare = this.game.add.rectangle(menuXOffset + index * (40 + menuXOffset), menuHeight / 2, 40, 40, color).setInteractive();
+    //         colorSquare.setOrigin(0.5, 0.5); // Centre l'origine du carré
+    //         colorSquare.on('pointerdown', () => {
+    //             this.game.events.emit('tankSelected', color); // Émettre un événement avec la couleur sélectionnée
+    //             this.selectionMenu.setVisible(false); // Masquer le menu après la sélection
+    //         });
+    //         this.selectionMenu.add(colorSquare);
+    //     });
+    // }
 
 
-    hideSelectionMenu() {
-        this.selectionMenu.setVisible(false);
-    }
+    // hideSelectionMenu() {
+    //     this.selectionMenu.setVisible(false);
+    // }
 
     isOnPath(gridX, gridY) {
         // Vérifiez que this.path est défini avant d'appeler 'some'
@@ -92,7 +94,6 @@ class GameView {
     }
 
 
-
     fadeBack(tile, color, alpha, duration) {
         let elapsedTime = 0;
         const intervalTime = 30; // Durée d'un pas de l'animation, en ms
@@ -111,49 +112,31 @@ class GameView {
 
         return interval;
     }
-    createTanks(numberOfTanks) {
-        this.tanks = []; // Tableau pour stocker les tanks
-
-        for (let i = 0; i < numberOfTanks; i++) {
-            // Création du tank avec un délai
+    createTanks() {
+        for (let i = 0; i < this.numberOfTanks; i++) {
             setTimeout(() => {
-                let tank = this.game.add.sprite(-20, ((this.path[0][1]) * 40) + 20, 'chickTexture');
+                let tank = new Tank(this.game, this.model, -20, ((this.path[0][1]) * 40) + 20);
+                tank.move(0);
+                tank.setOnDestroyedCallback(() => {
+                    // console.log('Tank détruit !');
+                    this.onTankDestroyed(tank);
+                    // console.log(this.tanks);
+                });
                 this.tanks.push(tank);
-                this.moveTank(tank, 0); // Commencez le mouvement du tank
-            }, i * 300);
+            }, i * 500);
         }
     }
 
+    onTankDestroyed(destroyedTank) {
+        // Retirer le tank détruit de la liste
+        this.tanks = this.tanks.filter(tank => tank !== destroyedTank);
 
-    moveTank(tank, index) {
-        if (index < this.path.length) {
-            // Mouvement normal le long du chemin
-            this.game.tweens.add({
-                targets: tank,
-                x: (this.path[index][0] * 40) + 20,
-                y: (this.path[index][1] * 40) + 20,
-                ease: 'Linear',
-                duration: 200,
-                onComplete: () => {
-                    this.moveTank(tank, index + 1);
-                }
-            });
-        } else if (index == this.path.length) {
-            // Effet de "rentrée" à la fin du chemin
-            this.game.tweens.add({
-                targets: tank,
-                x: (this.path[index - 1][0] * 40) + 20,
-                y: (this.path[index - 1][1] * 40) + 40,
-                scaleY: 0, // Réduire la largeur du tank à zéro
-                ease: 'Linear',
-                duration: 200,
-                onComplete: () => {
-                    tank.destroy(); // Détruire le tank après l'animation
-                }
-            });
+        // Vérifier si tous les tanks ont été détruits
+        if (this.tanks.length === 0) {
+            // Augmenter le nombre pour la prochaine vague
+            this.numberOfTanks += 2;
+            this.createTanks();
         }
     }
-
-
 
 }

@@ -11,12 +11,10 @@ const config = {
             this.load.image('playButton', 'assets/playButton.svg');
             this.load.image('heart', 'assets/heart.svg');
             this.load.image('noEntry', 'assets/noEntry.svg');
-
-
         },
         create: function() {
             const model = new GameModel();
-            const view = new GameView(this, model.mapPath);
+            const view = new GameView(this, model.mapPath, model);
             const controller = new GameController(model, view);
 
             controller.setupControlBar();
