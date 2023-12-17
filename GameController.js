@@ -3,8 +3,9 @@ class GameController {
         this.tanks = view.tanks;
         this.model = model;
         this.view = view;
-        this.setupSelectionMenu();
-        this.view.game.textures.generate('chickTexture', { data: this.model.chick, pixelWidth: 2.5, pixelHeight: 2.5, palette: this.model.chickColors });
+        this.isGamePlaying = false;
+        this.gamePaused = false;
+        //this.setupSelectionMenu();
 
     }
 
@@ -28,16 +29,59 @@ class GameController {
         this.view.game.events.on('playGame', this.playGame, this);
         this.view.game.events.on('setSpeed', this.setGameSpeed, this);
     }
-
+    start() {
+        if (!this.isGamePlaying) {
+            this.view.createTanks();
+            this.isGamePlaying = true;
+        }
+    }
     playGame() {
+        if (!this.isGamePlaying) {
+            // Si le jeu n'est pas en cours, lancez les tanks
+            this.start();
 
-        this.view.createTanks(3);
-
+        } else {
+            // Si le jeu est déjà en cours, activez/désactivez la pause
+            this.togglePause();
+        }
+    }
+    togglePause() {
+        const currentTanks = this.view.tanks; // Obtenir la liste actuelle des tanks
+        currentTanks.forEach(tank => {
+            if (tank.tween) {
+                if (this.gamePaused) {
+                    tank.tween.resume(); // Reprendre le mouvement
+                } else {
+                    tank.tween.pause(); // Mettre en pause le mouvement
+                }
+            }
+        });
+        this.gamePaused = !this.gamePaused;
     }
 
-    setGameSpeed(speed) {
-        // Logique pour régler la vitesse du jeu (x1, x2, x3)
+
+
+    setGameSpeed(speedLabel) {
+        // Mapper les labels de vitesse en facteurs de durée
+        const speedMapping = { 'x1': 1, 'x2': 0.5, 'x3': 0.25 };
+        const speedFactor = speedMapping[speedLabel];
+
+        const currentTanks = this.view.tanks; // Obtenir la liste actuelle des tanks
+        currentTanks.forEach(tank => {
+            if (tank.tween) {
+                // Arrêter le tween en cours
+                tank.tween.stop();
+
+                // Calculer la nouvelle durée
+                const newDuration = tank.initialDuration * speedFactor;
+
+                // Redémarrer le tween avec la nouvelle durée
+                tank.move(tank.currentPathIndex, newDuration);
+            }
+        });
     }
+
+
     setupInfoBar() {
         this.view.createInfoBar();
 
@@ -62,7 +106,7 @@ class GameController {
         const tileHeight = 40;
         const mapWidth = this.view.game.scale.width;
         const mapHeight = this.view.game.scale.height - 40; // ajusté pour la hauteur
-        const hoverColor = 0x595959; // Couleur pour l'effet de survol
+        const hoverColor = 0xD0D3D4; // Couleur pour l'effet de survol
 
         for (let y = 40; y < mapHeight; y += tileHeight) {
             for (let x = 0; x < mapWidth; x += tileWidth) {
@@ -86,7 +130,9 @@ class GameController {
                 }
 
                 tile.on('pointerdown', (pointer) => {
-                    console.log(`Clicked tile at grid position (${x / tileWidth}, ${y / tileHeight})`);
+
+                    this.view.createSelectionMenu(x / tileWidth, y / tileHeight);
+                    console.log(`Clicked tile at grid position (${(x / tileWidth) +1}, ${y / tileHeight})`);
                 });
             }
         }
