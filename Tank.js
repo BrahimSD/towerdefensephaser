@@ -31,8 +31,7 @@ class Tank {
         this.sprite = this.game.add.sprite(startX, startY, textureKey);
         this.currentPathIndex = 0;
     }
-
-
+  
     move(index, duration = this.initialDuration) {
         let tween;
         this.currentPathIndex = index;
@@ -40,7 +39,7 @@ class Tank {
             // Mouvement normal le long du chemin
             tween = this.game.tweens.add({
                 targets: this.sprite,
-                x: (this.model.mapPath[index][0] * 40) + 20,
+                x: (this.model.mapPath[index][0] * 40) + 20 ,
                 y: (this.model.mapPath[index][1] * 40) + 20,
                 ease: 'Linear',
                 duration: duration,

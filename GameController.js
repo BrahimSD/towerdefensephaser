@@ -236,9 +236,7 @@ class GameController {
                 }
 
                 tile.on('pointerdown', (pointer) => {
-
-                    this.createSelectionMenu(x / tileWidth, y / tileHeight);
-                    console.log(`Clicked tile at grid position (${(x / tileWidth) + 1}, ${y / tileHeight})`);
+                    console.log(`Clicked tile at grid position (${x / tileWidth}, ${y / tileHeight})`);
                 });
             }
         }
