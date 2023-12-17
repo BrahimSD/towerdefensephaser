@@ -1,13 +1,38 @@
 class Tank {
-    constructor(game, model, startX, startY, initialDuration = 200) {
+    constructor(game, model, startX, startY, initialDuration) {
         this.model = model;
         this.game = game;
-        this.game.textures.generate('chickTexture', { data: this.model.chick, pixelWidth: 2.5, pixelHeight: 2.5, palette: this.model.chickColors });
-        this.sprite = game.add.sprite(startX, startY, this.game.textures);
         this.initialDuration = initialDuration;
+
+        // Choisir une couleur aléatoire pour le tank
+        const colors = ['#ff0000', '#00FF00', '#0000FF']; // Rouge, Vert, Bleu
+        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+        // Générer une clé de texture unique pour chaque tank
+        const textureKey = 'tankTexture' + Date.now() + Math.random().toString(16);
+
+        // Générer la texture en utilisant la couleur aléatoire pour tous les pixels '2'
+        const tankDataWithColor = this.model.squareTank.map(row => {
+            return row.replace(/2/g, 'C'); // Remplacer '2' par 'C' pour utiliser la couleur aléatoire
+        });
+
+        // Générer la texture
+        this.game.textures.generate(textureKey, {
+            data: tankDataWithColor,
+            pixelWidth: 2,
+            pixelHeight: 2,
+            palette: {
+                '1': '#000000', // Noir pour les chenilles
+                'C': randomColor // Couleur aléatoire pour le corps du tank
+            }
+        });
+
+        // Créer le sprite du tank
+        this.sprite = this.game.add.sprite(startX, startY, textureKey);
         this.currentPathIndex = 0;
     }
-  
+
+
     move(index, duration = this.initialDuration) {
         let tween;
         this.currentPathIndex = index;
@@ -44,6 +69,8 @@ class Tank {
 
     destroy() {
         if (this.sprite) {
+            let textureKey = this.sprite.texture.key;
+            this.game.textures.remove(textureKey); // Supprimer la texture du cache
             this.sprite.destroy();
             if (this.onDestroyed) {
                 this.onDestroyed(); // Notifie GameView de la destruction

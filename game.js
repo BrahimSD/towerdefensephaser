@@ -4,13 +4,14 @@ const config = {
     width: 800,
     height: 640,
     parent: 'gameContainer',
-    backgroundColor: '#778899',
+    backgroundColor: '#D0D3D4',
     scene: {
 
         preload: function() {
             this.load.image('playButton', 'assets/playButton.svg');
             this.load.image('heart', 'assets/heart.svg');
             this.load.image('noEntry', 'assets/noEntry.svg');
+
         },
         create: function() {
             const model = new GameModel();

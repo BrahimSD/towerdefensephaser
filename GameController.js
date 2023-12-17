@@ -5,16 +5,122 @@ class GameController {
         this.view = view;
         this.isGamePlaying = false;
         this.gamePaused = false;
+        this.money = 500;
+        this.lives = 13;
+        this.tanks = [];
+        this.numberOfTanks = 3; // Commencer avec 3 tanks
+        this.currentWave = 0;
+        this.maxWaves = 20;
+        this.selectionMenu = null;
+        this.setOnDestroyedCallback = 0;
         //this.setupSelectionMenu();
+
+    }
+    createTanks() {
+        console.log(this.setOnDestroyedCallback);
+        if ((this.currentWave >= this.maxWaves) || (this.setOnDestroyedCallback > 2)) {
+            console.log("Jeu terminé !");
+            // Ajoutez ici la logique pour arrêter ou terminer le jeu
+            return;
+        }
+        this.numberOfTanks = Math.min(this.numberOfTanks, 20);
+        this.currentWave++;
+
+        this.view.updateInfo(this.lives, this.money, this.currentWave, this.nextWave, this.timer);
+        for (let i = 0; i < this.numberOfTanks; i++) {
+            this.model.mapPath.unshift([
+                [(-(i + 4)), 2],
+                [(-(i + 4)), 2]
+            ]);
+        }
+
+        let j = 0;
+        for (let i = 0; i < this.numberOfTanks; i++) {
+            // Calculer la position en X pour chaque tank
+            let tank = new Tank(this.view.game, this.model, ((this.model.mapPath[0][0]) * 40), ((this.model.mapPath[0][1]) * 40) + 20, 600);
+            tank.move(j);
+            j += 2;
+            tank.setOnDestroyedCallback(() => {
+                this.setOnDestroyedCallback++;
+                console.log(this.setOnDestroyedCallback);
+                this.onTankDestroyed(tank);
+            });
+            this.tanks.push(tank);
+        }
+    }
+    onTankDestroyed(destroyedTank) {
+        // Retirer le tank détruit de la liste
+        this.tanks = this.tanks.filter(tank => tank !== destroyedTank);
+        this.lives--;
+        this.view.updateInfo(this.lives, this.money, this.currentWave, this.nextWave, this.timer);
+        // Vérifier si tous les tanks ont été détruits
+        if (this.tanks.length === 0) {
+            // Augmenter le nombre pour la prochaine vague
+            this.numberOfTanks += 2;
+            this.createTanks();
+        }
+    }
+    createSelectionMenu(x, y) {
+        let X = x < 11 ? x : 12;
+        if (!this.view.isOnPath(x, y) && !this.view.selectionMenu) {
+            // Définissez la largeur et la hauteur du menu de sélection en fonction du nombre de carrés et de leur taille
+            const menuWidth = 70 * 4; // 4 carrés de large
+            const menuHeight = 80; // 1 carré de hauteur
+            const menuXOffset = 40; // Espace entre les carrés
+
+            // Créez un conteneur pour le menu de sélection qui est initialement masqué
+            //x = (x / 40)<=11 ? x : 440; 
+            this.view.selectionMenu = this.view.game.add.container(40 * X, 40 * y).setDepth(1);
+
+            // Créez un rectangle pour le fond du menu de sélection
+            this.view.background = this.view.game.add.rectangle(0, 0, menuWidth + menuXOffset, menuHeight, 0x282828);
+            this.view.background.setOrigin(0, 0); // Assurez-vous que l'origine est en haut à gauche
+            this.view.selectionMenu.add(this.view.background);
+
+            // Créez les carrés de couleurs à l'intérieur du menu de sélection
+            const colors = [0x00ff00, 0x0000ff, 0xffff00, 0xff0000]; // Vert, Bleu, Jaune, Rouge
+            const costs = [100, 150, 200, 250];
+            colors.forEach((color, index) => {
+                
+                const colorSquare = this.view.game.add.rectangle(menuXOffset + index * (40 + menuXOffset), menuHeight / 2, 40, 40, color).setInteractive();
+                colorSquare.setOrigin(0.5, 0.5); // Centre l'origine du carré
+                // Ajouter un texte indiquant le coût sous le carré
+                const costText = this.view.game.add.text(colorSquare.x, colorSquare.y + 25, `$${costs[index]}`, { font: '14px Arial', fill: '#ffffff' });
+                costText.setOrigin(0.5, 0);
+                colorSquare.on('pointerdown', () => {
+                    const cost = 100 + 50 * index;
+                    if (this.money >= cost) {
+                        new Tank2(this.view.game, this.view.model, index, (x * 40) + 20, (y * 40) + 20);
+                        this.money -= cost;
+                        this.view.updateInfo(this.lives, this.money, this.currentWave, this.nextWave, this.timer);
+                    }
+                    console.log(this.money);
+                    this.view.selectionMenu.setVisible(false);
+                    this.view.selectionMenu = null; // Masquer le menu après la sélection
+                });
+                this.view.selectionMenu.add(colorSquare);
+                this.view.selectionMenu.add(costText); 
+                
+            });
+
+        }
+        //ajouter une condition pour backgroud et selectionMenu
+        else if (this.view.selectionMenu != null && this.view.background != null) {
+            if (!(x < ((this.view.background.getBounds().x + 320) / 40) && x >= (this.view.background.getBounds().x / 40)) || !(y < ((this.view.background.getBounds().y + 80) / 40) && y >= (this.view.background.getBounds().y / 40))) {
+                this.view.selectionMenu.setVisible(false);
+                this.view.selectionMenu = null;
+            }
+        }
+        
 
     }
 
     createGame() {
-            this.view.createGrid(this.model.mapPath); // Dessiner la grille
-        }
-        // setupSelectionMenu() {
-        //     this.view.game.events.on('tankSelected', this.placeTank, this);
-        // }
+        this.view.createGrid(this.model.mapPath); // Dessiner la grille
+    }
+    // setupSelectionMenu() {
+    //     this.view.game.events.on('tankSelected', this.placeTank, this);
+    // }
 
 
     // placeTank(color) {
@@ -31,7 +137,7 @@ class GameController {
     }
     start() {
         if (!this.isGamePlaying) {
-            this.view.createTanks();
+            this.createTanks();
             this.isGamePlaying = true;
         }
     }
@@ -46,7 +152,7 @@ class GameController {
         }
     }
     togglePause() {
-        const currentTanks = this.view.tanks; // Obtenir la liste actuelle des tanks
+        const currentTanks = this.tanks; // Obtenir la liste actuelle des tanks
         currentTanks.forEach(tank => {
             if (tank.tween) {
                 if (this.gamePaused) {
@@ -66,15 +172,15 @@ class GameController {
         const speedMapping = { 'x1': 1, 'x2': 0.5, 'x3': 0.25 };
         const speedFactor = speedMapping[speedLabel];
 
-        const currentTanks = this.view.tanks; // Obtenir la liste actuelle des tanks
+        const currentTanks = this.tanks; // Obtenir la liste actuelle des tanks
         currentTanks.forEach(tank => {
             if (tank.tween) {
                 // Arrêter le tween en cours
                 tank.tween.stop();
-    
+
                 // Calculer la nouvelle durée
                 const newDuration = tank.initialDuration * speedFactor;
-    
+
                 // Redémarrer le tween avec la nouvelle durée
                 tank.move(tank.currentPathIndex, newDuration);
             }
@@ -106,7 +212,7 @@ class GameController {
         const tileHeight = 40;
         const mapWidth = this.view.game.scale.width;
         const mapHeight = this.view.game.scale.height - 40; // ajusté pour la hauteur
-        const hoverColor = 0x595959; // Couleur pour l'effet de survol
+        const hoverColor = 0xD0D3D4; // Couleur pour l'effet de survol
 
         for (let y = 40; y < mapHeight; y += tileHeight) {
             for (let x = 0; x < mapWidth; x += tileWidth) {
@@ -130,7 +236,9 @@ class GameController {
                 }
 
                 tile.on('pointerdown', (pointer) => {
-                    console.log(`Clicked tile at grid position (${x / tileWidth}, ${y / tileHeight})`);
+
+                    this.createSelectionMenu(x / tileWidth, y / tileHeight);
+                    console.log(`Clicked tile at grid position (${(x / tileWidth) + 1}, ${y / tileHeight})`);
                 });
             }
         }
