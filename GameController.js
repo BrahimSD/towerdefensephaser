@@ -63,6 +63,14 @@ class GameController {
     createSelectionMenu(x, y) {
         let X = x < 11 ? x : 12;
         if (!this.view.isOnPath(x, y) && !this.view.selectionMenu) {
+            // Créer un rectangle de filtre pour toute la scène s'il n'existe pas déjà
+        if (!this.view.dimBackground) {
+            this.view.dimBackground = this.view.game.add.rectangle(0, 0, 800, 640, 0x000000, 0.5).setOrigin(0, 0);
+            this.view.dimBackground.setDepth(0.9); // Assurez-vous qu'il est en arrière-plan
+            this.view.dimBackground.setVisible(false); // Initialement invisible
+        }
+        this.view.dimBackground.setVisible(true);
+
             // Définissez la largeur et la hauteur du menu de sélection en fonction du nombre de carrés et de leur taille
             const menuWidth = 70 * 4; // 4 carrés de large
             const menuHeight = 80; // 1 carré de hauteur
@@ -81,9 +89,25 @@ class GameController {
             const colors = [0x00ff00, 0x0000ff, 0xffff00, 0xff0000]; // Vert, Bleu, Jaune, Rouge
             const costs = [100, 150, 200, 250];
             colors.forEach((color, index) => {
-                
                 const colorSquare = this.view.game.add.rectangle(menuXOffset + index * (40 + menuXOffset), menuHeight / 2, 40, 40, color).setInteractive();
                 colorSquare.setOrigin(0.5, 0.5); // Centre l'origine du carré
+                // Créer une bordure pour le carré
+                const border = this.view.game.add.rectangle(colorSquare.x, colorSquare.y, 40, 40);
+                border.setStrokeStyle(2, 0xffffff); // Définir la bordure blanche
+                border.setOrigin(0.5, 0.5);
+                border.alpha = 0; // Rendre la bordure invisible initialement
+
+                // Gestionnaire d'événements pour le survol du carré
+                colorSquare.on('pointerover', () => {
+                    border.alpha = 1; // Augmenter l'opacité de la bordure au survol
+                });
+
+                // Gestionnaire d'événements pour le retrait du curseur du carré
+                colorSquare.on('pointerout', () => {
+                    border.alpha = 0; // Réduire l'opacité de la bordure
+                });
+
+                
                 // Ajouter un texte indiquant le coût sous le carré
                 const costText = this.view.game.add.text(colorSquare.x, colorSquare.y + 25, `$${costs[index]}`, { font: '14px Arial', fill: '#ffffff' });
                 costText.setOrigin(0.5, 0);
@@ -95,12 +119,18 @@ class GameController {
                         this.view.updateInfo(this.lives, this.money, this.currentWave, this.nextWave, this.timer);
                     }
                     console.log(this.money);
-                    this.view.selectionMenu.setVisible(false);
-                    this.view.selectionMenu = null; // Masquer le menu après la sélection
+                    if (this.view.selectionMenu) {
+                        this.view.selectionMenu.setVisible(false);
+                        this.view.selectionMenu = null;
+                    }
+
+                    if (this.view.dimBackground) {
+                        this.view.dimBackground.setVisible(false);
+                    }
                 });
                 this.view.selectionMenu.add(colorSquare);
-                this.view.selectionMenu.add(costText); 
-                
+                this.view.selectionMenu.add(costText);
+                this.view.selectionMenu.add(border);
             });
 
         }
@@ -109,12 +139,14 @@ class GameController {
             if (!(x < ((this.view.background.getBounds().x + 320) / 40) && x >= (this.view.background.getBounds().x / 40)) || !(y < ((this.view.background.getBounds().y + 80) / 40) && y >= (this.view.background.getBounds().y / 40))) {
                 this.view.selectionMenu.setVisible(false);
                 this.view.selectionMenu = null;
+                // Cacher également le rectangle de filtre
+                this.view.dimBackground.setVisible(false);
             }
+            //this.view.dimBackground.setVisible(false);
         }
+
         
-
     }
-
     createGame() {
         this.view.createGrid(this.model.mapPath); // Dessiner la grille
     }
@@ -236,7 +268,9 @@ class GameController {
                 }
 
                 tile.on('pointerdown', (pointer) => {
-                    console.log(`Clicked tile at grid position (${x / tileWidth}, ${y / tileHeight})`);
+
+                    this.createSelectionMenu(x / tileWidth, y / tileHeight);
+                    console.log(`Clicked tile at grid position (${(x / tileWidth) + 1}, ${y / tileHeight})`);
                 });
             }
         }
