@@ -146,9 +146,7 @@ class GameModel {
             '1': '#000000', // Noir pour les chenilles
             '2': '#ff0000' // Vert foncé pour le corps du tank
         };
-
-
-
+        
 
     }
     isValidLocation(x, y) {

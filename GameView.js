@@ -73,7 +73,6 @@ class GameView {
         // Créer un fond pour la barre d'information
         const infoBarBackground = this.game.add.rectangle(0, bottomY, this.game.scale.width, infoBarHeight, 0x000000);
         infoBarBackground.setOrigin(0, 0); // Positionner en bas
-
         // Ajouter des éléments textuels pour les vies, l'argent, les vagues et le bouton "Send Next"
         this.livesText = this.game.add.text(20, bottomY + 10, 'Vies: 13/13', { font: '16px Arial', fill: '#ffffff' });
         this.moneyText = this.game.add.text(150, bottomY + 10, 'Argent: $500', { font: '16px Arial', fill: '#ffffff' });

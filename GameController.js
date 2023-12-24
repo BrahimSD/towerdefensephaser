@@ -7,18 +7,18 @@ class GameController {
         this.gamePaused = false;
         this.money = 500;
         this.lives = 13;
-        this.tanks = [];
         this.numberOfTanks = 3; // Commencer avec 3 tanks
         this.currentWave = 0;
         this.maxWaves = 20;
         this.selectionMenu = null;
         this.setOnDestroyedCallback = 0;
+
         //this.setupSelectionMenu();
 
     }
+   
     createTanks() {
-        console.log(this.setOnDestroyedCallback);
-        if ((this.currentWave >= this.maxWaves) || (this.setOnDestroyedCallback > 2)) {
+        if ((this.currentWave >= this.maxWaves) || (this.setOnDestroyedCallback >= 4)) {
             console.log("Jeu terminé !");
             // Ajoutez ici la logique pour arrêter ou terminer le jeu
             return;
@@ -42,12 +42,15 @@ class GameController {
             j += 2;
             tank.setOnDestroyedCallback(() => {
                 this.setOnDestroyedCallback++;
-                console.log(this.setOnDestroyedCallback);
                 this.onTankDestroyed(tank);
             });
             this.tanks.push(tank);
+            
+            
+            //console.log('x = ' + this.tanks.getX() + ' y = ' + this.tanks.getY());
         }
-    }
+        
+        }
     onTankDestroyed(destroyedTank) {
         // Retirer le tank détruit de la liste
         this.tanks = this.tanks.filter(tank => tank !== destroyedTank);
@@ -114,11 +117,11 @@ class GameController {
                 colorSquare.on('pointerdown', () => {
                     const cost = 100 + 50 * index;
                     if (this.money >= cost) {
-                        new Tank2(this.view.game, this.view.model, index, (x * 40) + 20, (y * 40) + 20);
+                        new Tank2(this.view.game, this.view.model, index, (x * 40) + 20, (y * 40) + 20 ,this.tanks);
                         this.money -= cost;
                         this.view.updateInfo(this.lives, this.money, this.currentWave, this.nextWave, this.timer);
+                        this.pointerDownHappened = true;
                     }
-                    console.log(this.money);
                     if (this.view.selectionMenu) {
                         this.view.selectionMenu.setVisible(false);
                         this.view.selectionMenu = null;
@@ -158,7 +161,6 @@ class GameController {
     // placeTank(color) {
     //     // Implémentez la logique de placement du tank ici
     //     // Cette méthode sera appelée avec la couleur du tank sélectionné
-    //     console.log('Tank de couleur sélectionnée: ', color);
     // }
     setupControlBar() {
         this.view.createControlBar();
@@ -257,8 +259,12 @@ class GameController {
 
                 if (!isPathTile) {
                     tile.on('pointerover', () => {
-                        tile.setFillStyle(hoverColor, 1); // Change la couleur lors du survol
-                        clearTimeout(tile.hoverTimeout); // Annule tout timeout précédent
+                        if (!this.view.selectionMenu)
+                        {
+                            tile.setFillStyle(hoverColor, 1); // Change la couleur lors du survol
+                            clearTimeout(tile.hoverTimeout); 
+                        }
+
                     });
 
                     tile.on('pointerout', () => {
@@ -267,9 +273,9 @@ class GameController {
                     });
                 }
 
-                tile.on('pointerdown', (pointer) => {
-
+                tile.on('pointerdown', () => {
                     this.createSelectionMenu(x / tileWidth, y / tileHeight);
+                    this.pointerDownHappened = false;
                     console.log(`Clicked tile at grid position (${(x / tileWidth) + 1}, ${y / tileHeight})`);
                 });
             }
