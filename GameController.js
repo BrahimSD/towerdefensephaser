@@ -28,17 +28,18 @@ class GameController {
 
         this.view.updateInfo(this.lives, this.money, this.currentWave, this.nextWave, this.timer);
         for (let i = 0; i < this.numberOfTanks; i++) {
-            this.model.mapPath.unshift([
-                [(-(i + 4)), 2],
+            this.model.mapPath.unshift(
                 [(-(i + 4)), 2]
-            ]);
+                
+            );
         }
 
         let j = 0;
         for (let i = 0; i < this.numberOfTanks; i++) {
             // Calculer la position en X pour chaque tank
-            let tank = new Tank(this.view.game, this.model, ((this.model.mapPath[0][0]) * 40), ((this.model.mapPath[0][1]) * 40) + 20, 600);
+            let tank = new Tank(this.view.game, this.model, ((this.model.mapPath[0][0]) * 40), ((this.model.mapPath[0][1]) * 40) + 20, 1000);
             tank.move(j);
+            // console.log('vitesse = ' + tank.getVitesse());
             j += 2;
             tank.setOnDestroyedCallback(() => {
                 this.setOnDestroyedCallback++;
@@ -217,6 +218,8 @@ class GameController {
 
                 // Redémarrer le tween avec la nouvelle durée
                 tank.move(tank.currentPathIndex, newDuration);
+                //console.log('vitesse = ' + tank.getVitesse());
+
             }
         });
     }
