@@ -6,22 +6,20 @@ class Bullet {
         this.x = x;
         this.y = y;
         this.angle = angle;
-        const colors = ['#00ff00', '#0000ff', '#ffff00', '#ff0000'];
-        const textureKey = 'tankTexturee' + Date.now() + Math.random().toString(16);
-        const tankDataWithColor = this.model.squareTank.map(row => {return row.replace(/2/g, 'C'); }); // Remplacer '2' par 'C' pour utiliser la couleur aléatoire
-            this.game.textures.generate(textureKey, {
-                data: tankDataWithColor,
-                pixelWidth: 0.5,
-                pixelHeight: 0.5,
-                palette: {
-                    '1': '#000000', // Noir pour les chenilles
-                    'C': colors[this.index] // Couleur aléatoire pour le corps du tank
-                }
-            });
-    
-            // Créer le sprite du tank
-            this.sprite = this.game.add.sprite(this.x +40, this.y, textureKey);
-            this.currentPathIndex = 0;
+
+        const bulletColor = 0xffc0cb; // Rose en hexadécimal
+
+        // Créer un cercle graphique pour représenter la balle
+        const graphics = this.game.add.graphics();
+        graphics.fillStyle(bulletColor, 1);
+        graphics.fillCircle(5, 5, 5);
+        // Créer une texture à partir du cercle graphique
+        const textureKey = 'bulletTexture' + Date.now()+ Math.random().toString(16);
+        graphics.generateTexture(textureKey, 10, 10); // La texture aura une taille de 20x20 pixels
+        graphics.destroy(); // Détruire le graphique après avoir créé la texture
+
+        // Créer le sprite de la balle
+        this.sprite = this.game.add.sprite(this.x+40, this.y, textureKey);
     }
     
     moveTo(x, y, duration) {

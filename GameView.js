@@ -6,40 +6,8 @@ class GameView {
         this.game = game;
         this.tanks = [];
         this.numberOfTanks = 3; // Commencer avec 3 tanks
-
+        this.isGamePlaying = false;
     }
-
-    // createSelectionMenu() {
-    //     // Définissez la largeur et la hauteur du menu de sélection en fonction du nombre de carrés et de leur taille
-    //     const menuWidth = 70 * 4; // 4 carrés de large
-    //     const menuHeight = 80; // 1 carré de hauteur
-    //     const menuXOffset = 40; // Espace entre les carrés
-
-    //     // Créez un conteneur pour le menu de sélection qui est initialement masqué
-    //     this.selectionMenu = this.game.add.container(0, 0).setVisible(false).setDepth(1);
-
-    //     // Créez un rectangle pour le fond du menu de sélection
-    //     const background = this.game.add.rectangle(0, 0, menuWidth + menuXOffset, menuHeight, 0x282828);
-    //     background.setOrigin(0, 0); // Assurez-vous que l'origine est en haut à gauche
-    //     this.selectionMenu.add(background);
-
-    //     // Créez les carrés de couleurs à l'intérieur du menu de sélection
-    //     const colors = [0x00ff00, 0x0000ff, 0xffff00, 0xff0000]; // Vert, Bleu, Jaune, Rouge
-    //     colors.forEach((color, index) => {
-    //         const colorSquare = this.game.add.rectangle(menuXOffset + index * (40 + menuXOffset), menuHeight / 2, 40, 40, color).setInteractive();
-    //         colorSquare.setOrigin(0.5, 0.5); // Centre l'origine du carré
-    //         colorSquare.on('pointerdown', () => {
-    //             this.game.events.emit('tankSelected', color); // Émettre un événement avec la couleur sélectionnée
-    //             this.selectionMenu.setVisible(false); // Masquer le menu après la sélection
-    //         });
-    //         this.selectionMenu.add(colorSquare);
-    //     });
-    // }
-
-
-    // hideSelectionMenu() {
-    //     this.selectionMenu.setVisible(false);
-    // }
 
     isOnPath(gridX, gridY) {
         // Vérifiez que this.path est défini avant d'appeler 'some'
@@ -51,21 +19,56 @@ class GameView {
     createControlBar() {
         const controlBarHeight = 40; // Hauteur de la barre de contrôle
         const topY = 0; // Position Y de la barre
-
+    
         // Créer un fond pour la barre de contrôle
         const controlBarBackground = this.game.add.rectangle(0, topY, this.game.scale.width, controlBarHeight, 0x000000);
         controlBarBackground.setOrigin(0, 0); // Positionner en haut
-
-        // Ajouter des éléments textuels pour les boutons de contrôle
-        this.playButton = this.game.add.text(20, topY + 10, 'Play', { font: '16px Arial', fill: '#ffffff' }).setInteractive();
-        this.playButton.on('pointerdown', () => this.game.events.emit('playGame'));
-
+    
+        // Créer le bouton "Play" avec un fond et une bordure
+        this.createPlayButton(20, topY + 20, 'Play');
+    
+        // Boutons de vitesse
         const speeds = ['x1', 'x2', 'x3'];
         speeds.forEach((speed, index) => {
-            let speedButton = this.game.add.text(100 + index * 60, topY + 10, speed, { font: '16px Arial', fill: '#ffffff' }).setInteractive();
-            speedButton.on('pointerdown', () => this.game.events.emit('setSpeed', speed));
+            this.createButton(100 + index * 60, topY + 20, speed, () => this.game.events.emit('setSpeed', speed));
         });
     }
+    
+    createPlayButton(x, y, text) {
+        const buttonBackground = this.game.add.rectangle(x, y, 50, 30, 0x888888).setOrigin(0, 0.5);
+        buttonBackground.setStrokeStyle(2, 0xffffff);
+    
+        const buttonText = this.game.add.text(x + 25, y, text, { font: '16px Arial', fill: '#ffffff' }).setOrigin(0.5, 0.5);
+    
+        buttonBackground.setInteractive();
+        buttonBackground.on('pointerdown', () => {
+            this.isGamePlaying = !this.isGamePlaying;
+            buttonText.setText(this.isGamePlaying ? 'Pause' : 'Play');
+            this.game.events.emit('playGame');
+        });
+        buttonBackground.on('pointerover', () => buttonText.setFill('#ffff00')); // Changer la couleur au survol
+        buttonBackground.on('pointerout', () => buttonText.setFill('#ffffff')); // Revenir à la couleur originale
+    }
+    
+    createButton(x, y, text, callback) {
+        // Ajouter un fond et une bordure pour le bouton
+        const buttonBackground = this.game.add.rectangle(x, y, 50, 30, 0x888888).setOrigin(0, 0.5);
+        buttonBackground.setStrokeStyle(2, 0xffffff);
+    
+        // Ajouter le texte du bouton
+        const buttonText = this.game.add.text(x + 25, y, text, { font: '16px Arial', fill: '#ffffff' }).setOrigin(0.5, 0.5);
+    
+        // Rendre le fond interactif et ajouter les gestionnaires d'événements
+        buttonBackground.setInteractive();
+        buttonBackground.on('pointerdown', () => {
+            buttonText.setFill('#ff0000'); // Changer la couleur du texte lors du clic
+            callback(); // Appeler la fonction de callback
+        });
+        buttonBackground.on('pointerover', () => buttonText.setFill('#ffff00')); // Changer la couleur au survol
+        buttonBackground.on('pointerout', () => buttonText.setFill('#ffffff')); // Revenir à la couleur originale
+    }
+    
+    
     createInfoBar() {
         const infoBarHeight = 40; // Hauteur de la barre d'information
         const bottomY = this.game.scale.height - infoBarHeight; // Position Y de la barre
