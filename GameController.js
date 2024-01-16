@@ -835,11 +835,17 @@ class GameController {
         const speedMapping = { 'x1': 1, 'x2': 0.5, 'x3': 0.25 };
         this.gameSpeedFactor = speedMapping[speedLabel];
         this.applySpeedToCurrentTanks();
+        if (this.gameSpeedFactor === 0.25)
+            this.tanks2.forEach(tank => {
+                tank.rate = 0.5;
+            });
     }
     applySpeedToCurrentTanks() {
         this.tanks.forEach(tank => {
             tank.initialDuration = 1000 * this.gameSpeedFactor;
         });
+
+
     }
     setupInfoBar() {
         this.view.createInfoBar();
