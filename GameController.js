@@ -414,7 +414,6 @@ class GameController {
             } else {
 
                 if (this.view.background2.width == 320) {
-                    console.log('aaa');
                     this.view.background2 = this.view.game.add.rectangle(0, menuHeight + 2, 140 + menuXOffset, 150, 0x000000);
                     this.view.background2.setVisible(false);
                 }
@@ -659,7 +658,7 @@ class GameController {
                         this.view.selectionMenu.add(obj[key]);
                     });
                     colorSquare.on('pointerover', () => {
-                        console.log(this.positionTankColor((x * 40) + 20, (y * 40) + 20));
+                        //console.log(this.positionTankColor((x * 40) + 20, (y * 40) + 20));
 
                         border.alpha = 1;
                         this.view.background2.setVisible(true);
@@ -688,7 +687,7 @@ class GameController {
                             if (this.money >= (cost + 75) && tank2.level < 3) {
                                 if (selected) {
                                     if (tank2.level == 1) {
-                                        console.log(tank2.rectangles.square1);
+                                        //console.log(tank2.rectangles.square1);
                                         tank2.rectangles.square2.setFillStyle(tank2.rectangles.square1.fillColor, 1);
                                     } else if (tank2.level == 2) {
                                         tank2.rectangles.square3.setFillStyle(tank2.rectangles.square1.fillColor, 1);

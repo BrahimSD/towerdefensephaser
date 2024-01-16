@@ -29,7 +29,7 @@ class Tank2 {
         // Animer les rotations
         this.animateRotation(this.circleSprite, -360, 1000);
         this.animateBorder(this.circleSprite1, 2000, this.level);
-        //this.rectangles = this.square();
+        this.rectangles = this.square();
 
         //this.setupMouseEvents();
 
@@ -216,6 +216,9 @@ class Tank2 {
             // Supprimer la texture du cache
             this.circleSprite.destroy();
             this.circleSprite1.destroy();
+            this.rectangles.square1.destroy();
+            this.rectangles.square2.destroy();
+            this.rectangles.square3.destroy();
             // Object.keys(this.rectangles).forEach((rect) => {
 
             //     rect.setVisible(false);
