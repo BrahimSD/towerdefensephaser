@@ -1,10 +1,11 @@
 // GameModel.js
 class GameModel {
-    constructor() {
+    constructor(SoundManager) {
             // Singleton Pattern
             if (GameModel.instance) {
                 return GameModel.instance;
             }
+            this.SoundManager = SoundManager;
             this.lives = 13;
             this.waveNumber = 0;
             this.mapPath = [
@@ -155,9 +156,9 @@ class GameModel {
 
         }
         // Singleton Pattern
-    static getInstance(game, pPath, model) {
+    static getInstance(SoundManager) {
         if (!GameModel.instance) {
-            GameModel.instance = new GameModel(game, pPath, model);
+            GameModel.instance = new GameModel(SoundManager);
         }
         return GameModel.instance;
     }

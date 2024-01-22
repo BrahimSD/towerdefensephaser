@@ -103,18 +103,25 @@ class GameView {
         this.livesText = this.game.add.text(20, bottomY + 10, 'Vies: 13/13', { font: '16px Arial', fill: '#ffffff' });
         this.moneyText = this.game.add.text(150, bottomY + 10, 'Argent: $500', { font: '16px Arial', fill: '#ffffff' });
         this.waveText = this.game.add.text(280, bottomY + 10, 'Vagues: 0/20', { font: '16px Arial', fill: '#ffffff' });
-        this.nextWaveText = this.game.add.text(410, bottomY + 10, 'Prochaine: x V x B x J x R', { font: '16px Arial', fill: '#ffffff' });
+        this.nextWaveText = this.game.add.text(410, bottomY + 10, ' Prochaine:', { font: '16px Arial', fill: '#ffffff' });
+        this.nextWaveval1 = this.game.add.text(500, bottomY + 10, 'V', { font: '16px Arial', fill: '#ffffff' });
+        this.nextWaveval2 = this.game.add.text(530, bottomY + 10, 'B', { font: '16px Arial', fill: '#ffffff' });
+        this.nextWaveval3 = this.game.add.text(560, bottomY + 10, 'J', { font: '16px Arial', fill: '#ffffff' });
+        this.nextWaveval4 = this.game.add.text(590, bottomY + 10, 'R', { font: '16px Arial', fill: '#ffffff' });
 
         // Bouton pour envoyer la prochaine vague
-        this.sendNextButton = this.game.add.text(650, bottomY + 10, 'Envoyer (60s)', { font: '16px Arial', fill: '#ffffff' }).setInteractive();
+        this.sendNextButton = this.game.add.text(650, bottomY + 10, 'Envoyer ', { font: '16px Arial', fill: '#ffffff' }).setInteractive();
         this.sendNextButton.on('pointerdown', () => this.game.events.emit('sendNextWave'));
     }
-    updateInfo(lives, money, wave, nextWave, timer) {
-        this.livesText.setText(`Vies: ${lives}/13`);
-        this.moneyText.setText(`Argent: $${money}`);
-        this.waveText.setText(`Vagues: ${wave}/20`);
-        this.nextWaveText.setText(`Prochaine: ${nextWave}`);
-        this.sendNextButton.setText(`Envoyer (${timer}s)`);
+    updateInfo(lives, money, wave, v, b, j, r, timer) {
+        // this.livesText.setText(`Vies: ${lives}/13`);
+        // this.moneyText.setText(`Argent: $${money}`);
+        // this.waveText.setText(`Vagues: ${wave}/20`);
+        //this.sendNextButton.setText(`Envoyer (${timer}s)`);
+        // if (v != '') this.nextWaveval1.setText(`${v}`);
+        // if (b != '') this.nextWaveval2.setText(`${b}`);
+        // if (j != '') this.nextWaveval3.setText(`${j}`);
+        // if (r != '') this.nextWaveval4.setText(`${r}`);
     }
     fadeBack(tile, color, alpha, duration) {
         let elapsedTime = 0;

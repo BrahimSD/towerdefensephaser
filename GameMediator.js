@@ -2,6 +2,7 @@ class GameMediator {
     constructor() {
         this.tanks = [];
         this.tanks2 = [];
+        this.soundManager = new SoundManager();
     }
 
     registerTank(tank) {
@@ -32,6 +33,7 @@ class GameMediator {
         } else if (event.type === 'createAndMoveBullet') {
             const bullet = TankFactory.createBullet(event.view, event.startX, event.startY);
             bullet.moveTo(event.targetX, event.targetY, event.moveDuration);
+            this.soundManager.playSound('soundName1');
             //this.registerBullet(bullet);
         } else if (event.type === 'applyDamage') {
             // Trouver et appliquer l'effet de dommage au tank correspondant

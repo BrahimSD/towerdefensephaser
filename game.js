@@ -8,17 +8,18 @@ const config = {
     scene: {
 
         preload: function() {
-            this.load.image('playButton', 'assets/playButton.svg');
-            this.load.image('heart', 'assets/heart.svg');
-            this.load.image('noEntry', 'assets/noEntry.svg');
-
+            // Création de l'instance SoundManager
+            const soundManager = new SoundManager(this);
+            // Préchargement des sons
+            soundManager.preloadSounds();
         },
         create: function() {
-            const model = GameModel.getInstance(); //Singleton Pattern
+            const soundManager = new SoundManager(this); //Singleton Pattern ( même instance que dans preload)
+            const model = GameModel.getInstance(soundManager); //Singleton Pattern
             const view = GameView.getInstance(this, model); //Singleton Pattern
             GameController.getInstance(view); //Singleton Pattern
         }
     }
 };
 
-const game = new Phaser.Game(config);
+new Phaser.Game(config);

@@ -54,12 +54,13 @@ class GameController {
             return;
         }
 
+
         this.numberOfTanks += 2;
 
         this.numberOfTanks = Math.min(this.numberOfTanks, 20);
         this.currentWave++;
 
-        this.view.updateInfo(this.lives, this.money, this.currentWave, this.nextWave, this.timer);
+        this.view.updateInfo(this.lives, this.money, this.v, this.b, this.j, this.r, this.nextWave, this.timer);
 
         for (let i = 0; i < 4; i++) {
             this.view.model.mapPath.unshift(
@@ -72,10 +73,26 @@ class GameController {
             })
             // console.log(this.view.model.mapPath);
         let j = 0;
+        this.view.model.SoundManager.playSound('soundName3');
+        let tabl = [0, 0, 0, 0];
         for (let i = 0; i < this.numberOfTanks; i++) {
             // Calculer la position en X pour chaque tank
-
-            let tank = TankFactory.createTank('Tank', this.view, j);
+            let random = parseInt(Math.random() * 4);
+            switch (random) {
+                case 0:
+                    tabl[0]++;
+                    break;
+                case 1:
+                    tabl[1]++;
+                    break;
+                case 2:
+                    tabl[2]++;
+                    break;
+                case 3:
+                    tabl[3]++;
+                    break;
+            }
+            let tank = TankFactory.createTank('Tank', this.view, j, random);
             this.mediator.registerTank(tank);
 
             tank.move(this.tanks2);
@@ -88,7 +105,13 @@ class GameController {
             this.tanks.push(tank);
 
         }
-        console.log(this.tanks);
+
+        this.v = `${tabl[0]}`;
+        this.b = `${tabl[1]}`;
+        this.j = `${tabl[2]}`;
+        this.r = `${tabl[3]}`;
+        console.log(this.v, this.b, this.j, this.r);
+        this.view.updateInfo(this.lives, this.money, this.v, this.b, this.j, this.r, this.nextWave, this.timer);
 
         this.applySpeedToCurrentTanks();
 
@@ -96,6 +119,7 @@ class GameController {
     onTankDestroyed(destroyedTank) {
         // Retirer le tank détruit de la liste
         if (destroyedTank.resistance <= 0) {
+            this.view.model.SoundManager.playSound('soundName2');
             switch (destroyedTank.index) {
                 case 0:
                     this.money += 25;
@@ -132,7 +156,7 @@ class GameController {
         }
 
         this.tanks = this.tanks.filter(tank => tank !== destroyedTank);
-        this.view.updateInfo(this.lives, this.money, this.currentWave, this.nextWave, this.timer);
+        this.view.updateInfo(this.lives, this.money, this.currentWave, this.v, this.b, this.j, this.r, this.timer);
         // Vérifier si tous les tanks ont été détruits
         if (this.tanks.length === 0) {
             // Augmenter le nombre pour la prochaine vague
@@ -168,7 +192,7 @@ class GameController {
 
             // Création du menu de sélection
             const menubgOpacity = 0.7;
-            const menuHeight = 80;
+            const menuHeight = (y > 11) ? -135 : 80;
             const menuXOffset = 40;
 
             const colors = [0x00ff7f, 0x0000ff, 0xffff00, 0xff0000];
@@ -177,10 +201,10 @@ class GameController {
             const Nom = ['Earth', 'Water', 'Air', 'Fire'];
             console.log('y ( if y > 11)' + y);
             this.view.selectionMenu = this.view.game.add.container((40 * X) - 20, (40 * y) - 20).setDepth(1);
-            this.view.background = this.view.game.add.rectangle(0, 0, this.menuWidth + menuXOffset, menuHeight, 0x000000).setAlpha(menubgOpacity);
+            this.view.background = this.view.game.add.rectangle(0, 0, this.menuWidth + menuXOffset, 80, 0x000000).setAlpha(menubgOpacity);
             this.view.background.setOrigin(0, 0);
             this.view.selectionMenu.add(this.view.background);
-            const dottedSquare = this.view.game.add.rectangle(k, menuHeight / 2, 32, 32);
+            const dottedSquare = this.view.game.add.rectangle(k, 40, 32, 32);
             dottedSquare.setStrokeStyle(2, 0xffffff);
             dottedSquare.setOrigin(0.5, 0.5);
             this.view.selectionMenu.add(dottedSquare);
@@ -204,7 +228,7 @@ class GameController {
 
 
                 colors.forEach((color, index) => {
-                    const colorSquare = this.view.game.add.rectangle(menuXOffset + (index + i) * (20 + menuXOffset), menuHeight / 2, 32, 32, color).setInteractive();
+                    const colorSquare = this.view.game.add.rectangle(menuXOffset + (index + i) * (20 + menuXOffset), 40, 32, 32, color).setInteractive();
                     colorSquare.setOrigin(0.5, 0.5);
                     if (costs[index] > this.money) {
                         colorSquare.setAlpha(0.5);
@@ -331,7 +355,7 @@ class GameController {
                         this.view.background2 = this.view.game.add.rectangle(0, menuHeight + 2, this.menuWidth + menuXOffset, 130, 0x000000);
                         this.view.background2.setVisible(false);
                     }
-
+                    this.view.background2.y = menuHeight + 2;
                     this.view.background2.setOrigin(0, 0);
                     this.view.selectionMenu.add(this.view.background2);
                     this.view.selectionMenu.add(costText1);
@@ -394,7 +418,7 @@ class GameController {
                                 this.mediator.registerTank2(tank2);
                                 this.tanks2.push(tank2);
                                 this.money -= cost;
-                                this.view.updateInfo(this.lives, this.money, this.currentWave, this.nextWave, this.timer);
+                                this.view.updateInfo(this.lives, this.money, this.currentWave, this.v, this.b, this.j, this.r, this.timer);
                                 this.pointerDownHappened = true;
                             }
                         } else {
@@ -699,7 +723,7 @@ class GameController {
                                     tank2.range += 25;
                                     tank2.rate -= 0.2;
                                     this.money -= (cost + 75);
-                                    this.view.updateInfo(this.lives, this.money, this.currentWave, this.nextWave, this.timer);
+                                    this.view.updateInfo(this.lives, this.money, this.currentWave, this.v, this.b, this.j, this.r, this.timer);
                                     this.pointerDownHappened = true;
 
                                     console.log(this.positionTankColor((this.couple.x) + 20, (this.couple.y) + 20));
@@ -716,7 +740,7 @@ class GameController {
                             if (selected) {
 
                                 this.money += (tank2.money) * 0.75;
-                                this.view.updateInfo(this.lives, this.money, this.currentWave, this.nextWave, this.timer);
+                                this.view.updateInfo(this.lives, this.money, this.currentWave, this.v, this.b, this.j, this.r, this.timer);
                                 this.pointerDownHappened = true;
                                 tank2.occupationCircle.setVisible(false);
                                 tank2.destroy();
@@ -848,7 +872,6 @@ class GameController {
     }
     setupInfoBar() {
         this.view.createInfoBar();
-        this.updateInfoBar(13, 500, 0, 'x V x B x J x R', 60);
         this.view.game.events.on('sendNextWave', this.sendNextWave, this);
     }
     updateInfoBar(lives, money, wave, nextWave, timer) {
@@ -878,7 +901,10 @@ class GameController {
 
                 if (!isPathTile) {
                     tile.on('pointerover', () => {
+
                         if (!this.view.selectionMenu) {
+                            this.view.model.SoundManager.playSound('soundName4');
+
                             tile.setFillStyle(hoverColor, 1); // Change la couleur lors du survol
                             clearTimeout(tile.hoverTimeout);
                         }

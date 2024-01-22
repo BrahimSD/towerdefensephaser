@@ -8,8 +8,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "jsfxr": "^1.2.2",
     "phaser": "^3.70.0"
   },
-  "devDependencies": {},
   "description": ""
 }
