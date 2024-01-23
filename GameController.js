@@ -59,8 +59,9 @@ class GameController {
 
         this.numberOfTanks = Math.min(this.numberOfTanks, 20);
         this.currentWave++;
-
-        this.view.updateInfo(this.lives, this.money, this.v, this.b, this.j, this.r, this.nextWave, this.timer);
+        let tabl = [0, 0, 0, 0];
+        console.log(this.v, this.b, this.j, this.r);
+        //this.view.updateInfo(this.lives, this.money, this.v, this.b, this.j, this.r, this.nextWave, this.timer);
 
         for (let i = 0; i < 4; i++) {
             this.view.model.mapPath.unshift(
@@ -74,7 +75,7 @@ class GameController {
             // console.log(this.view.model.mapPath);
         let j = 0;
         this.view.model.SoundManager.playSound('soundName3');
-        let tabl = [0, 0, 0, 0];
+
         for (let i = 0; i < this.numberOfTanks; i++) {
             // Calculer la position en X pour chaque tank
             let random = parseInt(Math.random() * 4);
@@ -111,7 +112,8 @@ class GameController {
         this.j = `${tabl[2]}`;
         this.r = `${tabl[3]}`;
         console.log(this.v, this.b, this.j, this.r);
-        this.view.updateInfo(this.lives, this.money, this.v, this.b, this.j, this.r, this.nextWave, this.timer);
+        console.log(tabl);
+        this.view.updateInfo(this.lives, this.money, this.wave, tabl[0], tabl[1], tabl[2], tabl[3], this.nextWave, this.timer);
 
         this.applySpeedToCurrentTanks();
 
@@ -875,10 +877,12 @@ class GameController {
         this.view.game.events.on('sendNextWave', this.sendNextWave, this);
     }
     updateInfoBar(lives, money, wave, nextWave, timer) {
-        this.view.updateInfo(lives, money, wave, nextWave, timer);
+        this.view.updateInfo(lives, money, wave, this.v, this.b, this.j, this.r, timer);
     }
     sendNextWave() {
-        if (this.isGamePlaying) {
+
+        console.log(this.isGamePlaying);
+        if (this.isGamePlaying && !this.gamePaused) {
 
             this.createTanks();
         }

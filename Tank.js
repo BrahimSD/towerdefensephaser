@@ -1,12 +1,12 @@
 class Tank {
-    constructor(view, index) {
+    constructor(view, index, randomColor) {
         this.position = { x: (view.model.mapPath[index][0]) * 40, y: ((view.model.mapPath[index][1]) * 40) + 20, index: index };
         this.view = view;
         this.initialDuration = 1000;
         this.destroyedCallFunc = false;
         this.life = true;
         const colors = ['#00ff7f', '#0000ff', '#ffff00', '#ff0000'];
-        this.index = parseInt(Math.random() * colors.length);
+        this.index = randomColor;
         this.resistance = 7 + (3 * (this.index + 1));
         this.maxResistance = this.resistance;
         this.createHalfDiamondBorderTexture(this.position.x, this.position.y);
